@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  djangogram:
+    restart: always
+    build:
+      context: .
+    volumes:
+      - static_data:/vol/web
+    environment:
+      - ALLOWED_HOSTS=127.0.0.1,localhost
+      - DEBUG=1
+      - DB_NAME=djangogram_db
+      - DB_HOST=db
+      - DB_USER=my_user
+      - DB_PASS=my_password
+    depends_on:
+      - db
+
+  proxy:
+    restart: always
+    build:
+      context: ./proxy_dpl
+    volumes:
+      - static_data:/vol/static
+    ports:
+      - "8080:8080"
+    depends_on:
+      - djangogram
+
+  db:
+    restart: always
+    build:
+      context: ./postgres_dpl
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data
+
+volumes:
+  static_data:
